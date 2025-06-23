@@ -19,46 +19,9 @@
 
 ---
 
-## 📦 项目结构
-```php/
-├── public/
-│   └── index.php            // Slim入口
-├── app/
-│   ├── routes.php
-│   ├── controllers/
-│   │   ├── ArticleController.php
-│   │   └── ...
-│   ├── services/
-│   │   └── ArticleService.php
-│   └── helpers/
-│       ├── MarkdownHelper.php
-│       └── SeoHelper.php
-├── data/
-│   ├── articles/
-│   │   └── 20240622_xxxxx.md
-│   └── index.json
-├── composer.json
-└── ...
+## 📦 项目预览
 
-```
-### star-gossip-admin
-```js
-src/
-├── api/               // API接口定义
-│   └── article.js
-├── components/
-│   └── MarkdownEditor.vue
-├── views/
-│   ├── ArticleList.vue
-│   ├── ArticleEdit.vue
-│   └── Login.vue
-├── store/
-│   └── user.js
-├── router/
-│   └── index.js
-├── App.vue
-└── main.js
-```
+<img src="https://archive.biliimg.com/bfs/archive/c9ee0e351384d7a2f8b343bf7abfc33016669315.png"  referrerpolicy="no-referrer">
 
 ---
 
@@ -106,23 +69,33 @@ npm run dev
 
 
 - **首页（标签/分页无刷新）**
-
+  <img src="https://archive.biliimg.com/bfs/archive/db575496103d137753e7faecb320b51d1b54b182.png"  referrerpolicy="no-referrer">
 
 
 
 
 - **详情页（支持 Markdown 展示）**
 
+<img src="https://archive.biliimg.com/bfs/archive/87e45d07459e7e6c505ba9d7c88bebc8568b380b.png"  referrerpolicy="no-referrer">
 
 
 
+- **后台管理-登陆（Vue3）**
 
-- **后台管理（Vue3）**
+<img src="https://archive.biliimg.com/bfs/archive/66d9875527c4d84cdd9bebadb6f5cdd1bf26cd86.png"  referrerpolicy="no-referrer">
+
+- **后台管理-文章管理**
+  <img src="https://archive.biliimg.com/bfs/archive/54ed6746780ba1e822b38c01b557a48a3174092e.png"  referrerpolicy="no-referrer">
+
+- **后台管理-文章编辑**
+  <img src="https://archive.biliimg.com/bfs/archive/6da94a76db2f1ca00e02ec4b038a517f7894a823.png"  referrerpolicy="no-referrer">
 
 
+- **后台管理-标题池子管理**
+  <img src="https://archive.biliimg.com/bfs/archive/23ea2c98afb3347dd6ec17dd7ab80885a1a0005a.png"  referrerpolicy="no-referrer">
 
-
-
+- **后台管理-历史热点标题聚合**
+  <img src="https://archive.biliimg.com/bfs/archive/68864a5595e61020f3c0aec044ade5dd2e4e368c.png"  referrerpolicy="no-referrer">
 ------
 
 
@@ -226,3 +199,37 @@ npm run dev
 
 
 > **灵感来自生活，源码服务吃瓜。Star 一下，瓜不嫌多！🍉**
+
+
+
+> 后面继续优化，先记个备忘录。
+>
+## **1.** **AI 配置管理，自定义ai模型**
+- 阿里云AI配置
+- GPT模型配置
+- 自定义模型训练
+------
+
+## **2.** **自定义主题，主题样式支持流量分发**
+- 自定义主题模块
+- 主题样式支持流量分发
+- 主题样式优化，提升用户体验
+------
+
+## **3.** **SEO与流量极致优化**
+
+
+- **SSR（服务端渲染）或静态化首页/列表**，提升搜索引擎抓取友好度
+- **schema.org 结构化数据**，热门爆料/作者/标签等全部加 rich snippets
+- **每日/每周爆料榜单自动生成并推送百度/Google**
+- **自定义 sitemap、robots.txt 自动更新**
+
+------
+
+
+
+## **4.** **内容聚合与数据自动化**
+
+- **自动爬取/聚合外部爆料源**（今日头条、微博热搜、知乎等），内容清洗统一格式
+- **关键词热点追踪+自动生成专题页**
+- **AI辅助写稿：自动补全、内容润色、爆料摘要自动生成**
