@@ -20,7 +20,7 @@ window.AppConfig = {
         { img: 'https://archive.biliimg.com/bfs/archive/9d108eb5393a1e773c49acc514c04f638af8d789.png', link: 'https://wuxiumu.github.io' }
     ],
     HOT_ARTICLES: [
-        { id: '1', title: '年度爆料合集' }, { id: '2', title: '某某翻车实录' }
+        { id: '685979ca3350d', title: '2025年福利汇总第76期 ：六一加量不加价' }, { id: '685979ae2bbcc', title: '用GPT4o让刘强东和王兴成“兄弟”（含教程）' }
     ],
     HOT_TAGS: ['八卦','爆料','明星','娱乐新闻','吃瓜','年度盘点','幕后趣闻']
 };

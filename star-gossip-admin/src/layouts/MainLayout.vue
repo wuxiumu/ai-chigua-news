@@ -1,7 +1,7 @@
 <template>
   <el-container style="min-height:100vh">
     <el-header height="60px" class="topbar">
-      <span style="font-weight:bold; font-size:20px">后台管理系统</span>
+      <span class="site-title" @click="showSiteModal = true">{{ currentSiteTitle }}</span>
       <nav class="topbar-nav">
         <template v-for="item in navMenus" :key="item.label">
           <!-- 路由跳转 -->
@@ -25,6 +25,44 @@
               class="nav-link"
               @click="item.action"
           >{{ item.label }}</a>
+
+          <!-- 站点弹窗 -->
+          <el-dialog
+              v-model="showSiteModal"
+              title="所有可用站点"
+              width="600px"
+              center
+              :close-on-click-modal="false"
+          >
+            <el-table :data="siteStore.siteList" border style="width:100%">
+              <el-table-column prop="name" label="名称"/>
+              <!-- 这里改成自定义内容 -->
+              <el-table-column prop="api" label="API 地址">
+                <template #default="{ row }">
+                  <a
+                      :href="row.api"
+                      target="_blank"
+                      rel="noopener"
+                      style="color: #409EFF; text-decoration: underline; word-break: break-all;"
+                      @click.stop
+                  >{{ row.api }}</a>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作">
+                <template #default="{row}">
+                  <el-button
+                      type="primary"
+                      size="small"
+                      @click="selectSite(row.key)"
+                      :disabled="row.key === siteStore.currentSite?.key"
+                  >切换</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div style="margin-top:20px;text-align:center;">
+              <el-button type="info" @click="showSiteModal = false">关闭</el-button>
+            </div>
+          </el-dialog>
         </template>
       </nav>
       <div class="topbar-info">
@@ -42,14 +80,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/store/user'
 import { useRouter } from 'vue-router'
 import { User } from '@element-plus/icons-vue'
+import { useSiteStore } from '@/store/site'
 
-const user = useUserStore()
+const siteStore = useSiteStore()
+const showSiteModal = ref(false)
+
+const currentSiteTitle = computed(() =>
+    siteStore.currentSite
+        ? `${siteStore.currentSite.name} (AI新闻管理后台)`
+        : '请选择站点'
+)
+
+function selectSite(key) {
+  const site = siteStore.siteList.find(s => s.key === key)
+  if (site) siteStore.setSite(site)
+  showSiteModal.value = false
+}
+
 const router = useRouter()
 
+const user = useUserStore()
 // 导航菜单数组：type支持 route/link/action
 const navMenus = [
   { label: '文章管理', type: 'route', to: '/' },
@@ -124,5 +178,15 @@ function logout() {
 }
 .nav-link:hover {
   opacity: 0.8;
+}
+.site-title {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: background .2s;
+}
+.site-title:hover {
+  background: #f2f2f2;
 }
 </style>

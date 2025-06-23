@@ -48,10 +48,10 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import request from '@/api/request'
+import getApi from '@/api/request'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
-
+const request = getApi()
 // 当前年（供标记今年）
 const nowYear = dayjs().year()
 

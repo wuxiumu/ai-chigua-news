@@ -1,23 +1,23 @@
 // src/api/article.js
-import request from './request' // 注意路径！
+import getApi from '@/api/request'
 
 export function getArticles(params) {
-    return request.get('/api/articles', { params })
+    return getApi().get('/api/articles', { params })
 }
 
 export function getArticle(id) {
-    return request.get(`/api/article/${id}`)
+    return getApi().get(`/api/article/${id}`)
 }
 
 export function saveArticle(data) {
-    if (data.id) return request.put(`/api/article/${data.id}`, data)
-    return request.post('/api/article', data)
+    if (data.id) return getApi().put(`/api/article/${data.id}`, data)
+    return getApi().post('/api/article', data)
 }
 
 export function updateArticle(id, data) {
-    return request.put(`/api/article/${id}`, data)
+    return getApi().put(`/api/article/${id}`, data)
 }
 
 export function delArticle(id) {
-    return request.delete(`/api/article/${id}`)
+    return getApi().delete(`/api/article/${id}`)
 }

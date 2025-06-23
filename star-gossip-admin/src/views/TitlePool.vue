@@ -71,8 +71,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import request from '@/api/request'
+import getApi from '@/api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
+const request = getApi()
 
 const fileList = ref([])
 const curFile = ref('')

@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
         next({ path: '/login', query: { redirect: to.fullPath } })
     } else if (to.path === '/login' && user.token) {
         // 已登录访问登录页，自动跳转首页
-        next({ path: '/' })
+        // next({ path: '/' })
     } else {
         next()
     }

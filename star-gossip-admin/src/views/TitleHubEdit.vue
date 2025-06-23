@@ -79,9 +79,11 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import request from '@/api/request'
+import getApi from '@/api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
+
+const request = getApi()
 
 // 跳转回日历页
 function goCalendar() {
