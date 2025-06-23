@@ -1,0 +1,294 @@
+/* ======= 基础布局与字体 ======= */
+body {
+    margin: 0;
+    font-family: 'PingFang SC', 'Arial', sans-serif;
+    background: #f8f9fa;
+}
+
+/* ======= 头部整体居中&LOGO ======= */
+.header {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    position: relative;
+    padding: 0;
+}
+.header-inner {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+.logo {
+    font-weight: bold;
+    font-size: 22px;
+    color: #2d8cf0;
+    margin-right: 32px;
+    min-width: 96px;
+    text-align: left;
+}
+
+/* ======= 导航多级菜单 ======= */
+.nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+.nav-list {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    position: relative;
+}
+.nav-link {
+    color: #222;
+    text-decoration: none;
+    font-size: 17px;
+    padding: 12px 18px;
+    border-radius: 6px;
+    position: relative;
+    background: none;
+    transition: .16s;
+    font-weight: 500;
+}
+.nav-link.active, .nav-link:hover {
+    color: #fff;
+    background: #2d8cf0;
+}
+.nav-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 110%;
+    min-width: 170px;
+    background: #fff;
+    z-index: 299;
+    border-radius: 9px;
+    box-shadow: 0 8px 32px #dde4efcc;
+    border: 1px solid #e0e3ed;
+    padding: 13px 0;
+    margin-top: 7px;
+}
+.nav-dropdown:hover > .dropdown-menu,
+.nav-dropdown.open > .dropdown-menu { /* PC: hover, 移动端: open类 */
+    display: block;
+}
+.dropdown-menu .nav-link {
+    color: #333;
+    background: none;
+    border-radius: 4px;
+    font-size: 15px;
+    padding: 10px 28px;
+    margin: 0 2px;
+    font-weight: 400;
+}
+.dropdown-menu .nav-link.active, .dropdown-menu .nav-link:hover {
+    background: #f4f8ff;
+    color: #2d8cf0;
+}
+/* 三级菜单右侧展开 */
+.dropdown-menu .nav-dropdown { position: relative; }
+.dropdown-menu .dropdown-menu {
+    left: 100%;
+    top: 0;
+    min-width: 160px;
+    box-shadow: 0 4px 18px #dde4efcc;
+    margin-left: 2px;
+    margin-top: -12px;
+    border-radius: 8px;
+    border: 1px solid #e0e3ed;
+}
+
+/* ======= 移动端菜单 ======= */
+.menu-btn {
+    display: none;
+    position: absolute;
+    right: 28px;
+    top: 12px;
+    width: 34px;
+    height: 34px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.menu-btn-bar {
+    display: block;
+    width: 26px;
+    height: 4px;
+    background: #2d8cf0;
+    margin: 5px 0;
+    border-radius: 2px;
+}
+
+/* ======= Banner ======= */
+.banner {
+    max-width: 900px;
+    margin: 16px auto 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.banner img {
+    width: 100%;
+    display: block;
+    border-radius: 10px;
+}
+
+/* ======= 主内容区 ======= */
+.main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px 10px 0 10px;
+}
+.article-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.item {
+    background: #fff;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px #eee;
+    padding: 18px 22px 14px 22px;
+}
+.item-title {
+    font-size: 21px;
+    font-weight: 600;
+    color: #222;
+    margin: 0;
+    cursor: pointer;
+}
+.item-title:hover { color: #2d8cf0; }
+.item-desc {
+    font-size: 15px;
+    color: #666;
+    margin: 8px 0 0 0;
+}
+.item-meta {
+    font-size: 13px;
+    color: #bbb;
+    margin-top: 6px;
+}
+.item-tags { margin-left: 10px; }
+.tag {
+    display: inline-block;
+    margin-right: 6px;
+    background: #f2f3f8;
+    color: #5e6d82;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 2px 7px;
+    max-width: 64px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+/* ======= 热门文章&标签区 ======= */
+.hot-block {
+    background: #fff;
+    margin: 18px auto 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px #eee;
+    max-width: 900px;
+    padding: 18px;
+}
+.hot-title {
+    color: #2d8cf0;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+.hot-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.hot-item {
+    color: #555;
+    font-size: 15px;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+.hot-item:hover { color: #d43a4a; }
+.hot-tags { margin-top: 16px; }
+.hot-tag {
+    display: inline-block;
+    margin: 0 8px 6px 0;
+    padding: 3px 12px;
+    border-radius: 14px;
+    background: #f2f6fc;
+    color: #2196f3;
+    font-size: 13px;
+    cursor: pointer;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+.hot-tag:hover { background: #2196f3; color: #fff; }
+
+/* ======= 分页 ======= */
+.pager-btn {
+    border: none;
+    background: #2d8cf0;
+    color: #fff;
+    font-size: 15px;
+    border-radius: 5px;
+    padding: 3px 13px;
+    margin: 0 6px;
+    cursor: pointer;
+}
+.pager-btn:disabled { opacity: 0.5; }
+
+/* ======= 底部 ======= */
+.footer {
+    margin-top: 36px;
+    color: #888;
+    font-size: 14px;
+    padding: 32px 0 18px 0;
+    text-align: center;
+}
+
+/* ======= 响应式适配 ======= */
+@media (max-width: 980px) {
+    .header-inner, .main, .hot-block, .banner { max-width: 100%; }
+    .header-inner { padding: 0 10px; }
+    .nav-list { gap: 16px; }
+}
+@media (max-width: 600px) {
+    .header-inner { flex-direction: row; padding: 0 4px; }
+    .logo { font-size: 16px; min-width: 70px; margin-right: 12px; }
+    .nav-list {
+        display: none;
+        flex-direction: column;
+        gap: 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 60px;
+        z-index: 399;
+        background: #fff;
+        box-shadow: 0 3px 18px #eee;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        border-radius: 0 0 10px 10px;
+    }
+    .nav-list.open { display: flex; }
+    .dropdown-menu { position: static; box-shadow: none; border: none; margin: 0; min-width: 120px; border-radius: 0; }
+    .dropdown-menu .dropdown-menu { position: static; margin-left: 0; }
+    .menu-btn { display: block; }
+    .nav { justify-content: flex-start; }
+}
