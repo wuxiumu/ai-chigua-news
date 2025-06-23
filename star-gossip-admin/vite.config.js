@@ -1,10 +1,9 @@
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
-
 import vue from '@vitejs/plugin-vue'
 
-// https://vitejs.dev/config/
 export default defineConfig({
+  base: '/',  // 只需这一行指定上线后的访问路径
   plugins: [vue()],
   resolve: {
     alias: {
@@ -13,7 +12,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:8080'
+      '/api': 'http://127.0.0.1:8080' // 仅本地开发用
     }
+  },
+  build: {
+    chunkSizeWarningLimit: 10000  // 调高限制（比如1000k）
   }
 })

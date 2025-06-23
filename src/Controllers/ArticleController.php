@@ -220,6 +220,7 @@ HTML;
 // 获取单篇文章详情
     public function apiShow(Request $request, Response $response, $args): Response
     {
+
         $id = $args['id'] ?? '';
         $article = ArticleService::getArticle($id);
         if (!$article) {

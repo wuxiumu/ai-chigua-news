@@ -64,7 +64,7 @@ onMounted(async () => {
         desc: data.meta?.desc || '',
         tags: Array.isArray(data.meta?.tags) ? data.meta.tags : [],
         cover: data.meta?.cover || '',
-        content: data.content_html || '' // 或 data.content，如果你更喜欢编辑markdown源码
+        content: data.content || '' // 或 data.content，如果你更喜欢编辑markdown源码
       })
     } catch (e) {
       ElMessage.error('加载失败')

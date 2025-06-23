@@ -1,3 +1,12 @@
+window.onerror = function (message, source, lineno, colno, error) {
+    alert('前端报错: ' + message + '\n' + source + ':' + lineno + ':' + colno);
+    console.error('[全局错误]', message, source, lineno, colno, error);
+};
+window.addEventListener('unhandledrejection', function (e) {
+    alert('Promise错误: ' + (e.reason && e.reason.stack ? e.reason.stack : e.reason));
+    console.error('[Promise异常]', e);
+});
+
 import { createApp } from 'vue'
 import App from './App.vue'
 import ElementPlus from 'element-plus'
