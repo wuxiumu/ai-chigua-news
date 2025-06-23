@@ -20,9 +20,46 @@
 ---
 
 ## 📦 项目结构
-```
+```php/
+├── public/
+│   └── index.php            // Slim入口
+├── app/
+│   ├── routes.php
+│   ├── controllers/
+│   │   ├── ArticleController.php
+│   │   └── ...
+│   ├── services/
+│   │   └── ArticleService.php
+│   └── helpers/
+│       ├── MarkdownHelper.php
+│       └── SeoHelper.php
+├── data/
+│   ├── articles/
+│   │   └── 20240622_xxxxx.md
+│   └── index.json
+├── composer.json
+└── ...
 
 ```
+### star-gossip-admin
+```js
+src/
+├── api/               // API接口定义
+│   └── article.js
+├── components/
+│   └── MarkdownEditor.vue
+├── views/
+│   ├── ArticleList.vue
+│   ├── ArticleEdit.vue
+│   └── Login.vue
+├── store/
+│   └── user.js
+├── router/
+│   └── index.js
+├── App.vue
+└── main.js
+```
+
 ---
 
 ## 🚀 快速启动
