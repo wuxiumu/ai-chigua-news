@@ -69,7 +69,9 @@
         <span>{{ nowStr }}</span>
         <span>{{ weekStr }}</span>
         <el-icon style="margin-left:12px"><User /></el-icon>
-        <span>{{ user.username || '未登录' }}</span>
+        <span class="user-edit-link" @click="showUserEditModal = true">
+          {{ user.username || '未登录' }}
+        </span>
         <el-button v-if="user.token" size="small" @click="logout" style="margin-left: 10px;">退出</el-button>
       </div>
     </el-header>
@@ -77,14 +79,41 @@
       <router-view/>
     </el-main>
   </el-container>
+  <el-dialog
+      v-model="showUserEditModal"
+      title="修改账号信息"
+      width="400px"
+      center
+      :close-on-click-modal="false"
+  >
+    <el-form :model="userEditForm" :rules="userEditRules" ref="userEditRef" label-width="80px">
+      <el-form-item label="新账号" prop="username">
+        <el-input v-model="userEditForm.username" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="新密码" prop="password">
+        <el-input type="password" v-model="userEditForm.password" autocomplete="off" show-password />
+      </el-form-item>
+      <el-form-item label="确认密码" prop="confirm">
+        <el-input type="password" v-model="userEditForm.confirm" autocomplete="off" show-password />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submitUserEdit">保存</el-button>
+        <el-button @click="showUserEditModal = false">取消</el-button>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ElMessage } from 'element-plus'
+import { ref, reactive,computed, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '@/store/user'
 import { useRouter } from 'vue-router'
 import { User } from '@element-plus/icons-vue'
 import { useSiteStore } from '@/store/site'
+import getApi from '@/api/request' // 你的 axios 封装
+
+
 
 const siteStore = useSiteStore()
 const showSiteModal = ref(false)
@@ -146,6 +175,49 @@ onBeforeUnmount(() => {
 function logout() {
   user.logout()
   router.push('/login')
+}
+
+const showUserEditModal = ref(false)
+const userEditRef = ref()
+const userEditForm = reactive({
+  username: user.username,
+  password: '',
+  confirm: ''
+})
+const userEditRules = {
+  username: [
+    { required: true, message: '账号名不能为空', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '密码不能为空', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+  ],
+  confirm: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    { validator: (rule, value) => value === userEditForm.password, message: '两次密码不一致', trigger: 'blur' }
+  ]
+}
+
+function submitUserEdit() {
+  userEditRef.value.validate(async valid => {
+    if (!valid) return
+    try {
+      const res = await getApi().post('/api/password', {
+        username: userEditForm.username,
+        password: userEditForm.password
+      })
+      if (res.data.code === 0) {
+        ElMessage.success('修改成功，请重新登录')
+        user.logout()
+        showUserEditModal.value = false
+        router.push('/login')
+      } else {
+        ElMessage.error(res.data.msg || '修改失败')
+      }
+    } catch (e) {
+      ElMessage.error('网络异常')
+    }
+  })
 }
 </script>
 

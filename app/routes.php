@@ -27,6 +27,9 @@ return function (App $app) {
     $app->get('/api/articlelist',  [ArticleController::class, 'apiList']);
     $app->get('/api/articleinfo/{id}',  [ArticleController::class, 'apiShow']);
     $app->group('/api', function ($group) {
+        //  修改密码
+        $group->post('/password', [AuthController::class, 'setPassword']);
+        //  注册
         // 文章管理
         $group->get('/articles', [ArticleController::class, 'apiList']);
         $group->get('/article/{id}', [ArticleController::class, 'apiShow']);
@@ -63,7 +66,7 @@ return function (App $app) {
         $group->put('/file/{filename}/line/{line_no}', [TitleHubController::class, 'update']); // 修改一行
         $group->delete('/file/{filename}/line/{line_no}', [TitleHubController::class, 'del']); // 删除一行
         $group->post('/file/{filename}/line/{line_no}/generate', [TitleHubController::class, 'generate']); // AI生成并建文
-    });
+    })->add(JwtMiddleware::class);
 
     $app->get('/in', [ArticleController::class, 'index']);
     $app->get('/', [ArticleController::class, 'home']);
@@ -76,7 +79,6 @@ return function (App $app) {
     $app->get('/hot', [ArticleController::class, 'hot']);
 
     $app->post('/submit', [ArticleController::class, 'submit']); // 可选
-//    $app->get('/sitemap.xml', [ArticleController::class, 'sitemap']);
 
     $app->get('/sitemap.xml', [SeoController::class, 'sitemap']);
     $app->get('/robots.txt', function($req, $res, $args){
