@@ -132,6 +132,10 @@ function updateNow() {
 
 let timer = null
 onMounted(() => {
+  // 用户信息不存在
+  if (!user.token) {
+    router.push('/login')
+  }
   updateNow()
   timer = setInterval(updateNow, 1000)
 })

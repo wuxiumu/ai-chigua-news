@@ -31,7 +31,7 @@ const getApi = () => {
                 userStore.logout()
                 // 可加全局提示
                 if (typeof window !== 'undefined') {
-                    alert('登录已失效，请重新登录')
+                    // alert('登录已失效，请重新登录')
                 }
                 // 可以加跳转到登录页逻辑
             }
