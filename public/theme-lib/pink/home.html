@@ -440,7 +440,7 @@
             return;
         }
         const popular = config.popularArticles;
-
+        var num = 1;
         container.innerHTML = `
         <div class="bg-white rounded-xl p-6 card-shadow">
           <h3 class="text-xl font-bold mb-4 text-primary border-b pb-3">${popular.title}</h3>
@@ -448,7 +448,7 @@
             ${popular.articles.map(article => `
               <div class="flex items-start space-x-3 pb-3 border-b border-gray-100">
                 <div class="bg-primary/10 text-primary text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                  ${article.id - 3}
+                   ${num++}
                 </div>
                 <div>
                   <h4 class="font-medium hover:text-primary transition-colors duration-200">
