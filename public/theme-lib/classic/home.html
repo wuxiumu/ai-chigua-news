@@ -12,9 +12,15 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- 引入Marked.js用于解析Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- 引入highlight.js用于代码高亮 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+    <!-- 引入Marked.js用于解析Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- highlight.js 代码高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- 行号插件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <!-- 复制按钮（Clipboard.js，轻量好用）-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
     <!-- Tailwind配置 -->
     <script>
         tailwind.config = {
@@ -51,6 +57,35 @@
             .card-shadow {
                 box-shadow: 0 4px 20px rgba(22, 93, 255, 0.08);
             }
+        }
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            z-index: 10;
+            font-size: 13px;
+            padding: 2px 12px;
+            background: #ec4899;  /* 可改为你的主题色 */
+            color: #fff;
+            border-radius: 4px;
+            opacity: 0.85;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+        }
+        .copy-btn:hover {
+            background: #d946ef;
+            opacity: 1;
+        }
+        .hljs-ln {
+            /* 行号整体布局 */
+            border-radius: 0 0 8px 8px;
+        }
+        .hljs-ln-numbers {
+            text-align: right;
+            color: #999;
+            padding-right: 8px !important;
+            user-select: none;
         }
     </style>
 </head>
@@ -559,9 +594,7 @@
                     };
 
                     // 高亮代码块
-                    articleContent.querySelectorAll('pre code').forEach((block) => {
-                        hljs.highlightElement(block);
-                    });
+                    enhanceCodeBlocks()
                 } else {
                     articleContent.innerHTML = `<h1 class="text-xl font-bold text-primary mb-4">未找到文章</h1>
                   <button id="back-to-home" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-dark transition-colors duration-200">
@@ -757,6 +790,43 @@
 
         // 隐藏加载指示器，显示内容
         document.getElementById('loading-indicator').classList.add('hidden');
+    }
+    function enhanceCodeBlocks() {
+        // 1. 高亮所有 <pre><code>
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+
+        // 2. 加行号（需要高亮后再加）
+        hljs.lineNumbersBlock && document.querySelectorAll('pre code').forEach((block) => {
+            hljs.lineNumbersBlock(block);
+        });
+
+        // 3. 每个代码块上方加“复制”按钮
+        document.querySelectorAll('pre').forEach((pre, i) => {
+            if (pre.querySelector('.copy-btn')) return; // 防止重复加
+            const btn = document.createElement('button');
+            btn.className = "copy-btn absolute right-2 top-2 px-2 py-1 text-xs bg-primary text-white rounded shadow hover:bg-dark transition";
+            btn.textContent = "复制";
+            btn.setAttribute('data-clipboard-target', `#cb-copy-${i}`);
+            // 设置唯一ID
+            const code = pre.querySelector('code');
+            code.id = `cb-copy-${i}`;
+            // 按钮布局
+            pre.style.position = 'relative';
+            pre.appendChild(btn);
+        });
+
+        // 4. 启动clipboard
+        new ClipboardJS('.copy-btn');
+
+        // 5. 点击反馈
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.onclick = () => {
+                btn.textContent = "已复制!";
+                setTimeout(() => btn.textContent = "复制", 1500);
+            };
+        });
     }
 </script>
 </body>
