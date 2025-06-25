@@ -1,12 +1,22 @@
 [
     {
         "order": 1,
-        "name": "浪色",
+        "name": "蓝色",
         "description": "博客主题",
-        "author": "aric",
+        "author": "Aric",
         "version": "1",
-        "preview": "https:\/\/archive.biliimg.com\/bfs\/archive\/9d108eb5393a1e773c49acc514c04f638af8d789.png",
+        "preview": "https:\/\/archive.biliimg.com\/bfs\/archive\/65fdf3ecfbf72ee5f393ad64d270135806b60e14.png",
         "is_used": 1,
         "theme_path": "\/theme-lib\/classic\/home.html"
+    },
+    {
+        "order": 2,
+        "name": "粉色",
+        "description": "博客",
+        "author": "Aric",
+        "theme_path": "\/theme-lib\/pink\/home.html",
+        "version": "1",
+        "preview": "https:\/\/archive.biliimg.com\/bfs\/archive\/4649037dc59ae6dea8c81cdd089ab95514902d06.png",
+        "is_used": 0
     }
 ]

@@ -7,6 +7,7 @@ use App\Services\ArticleService;
 
 class ArticleController
 {
+    private $projectDir = __DIR__ . '/../../public';
     public function index(Request $request, Response $response, $args): Response
     {
         $articles = ArticleService::getIndex();
@@ -300,14 +301,14 @@ HTML;
     // 函数home。输出/public/home.html文件内容
     public function home(Request $request, Response $response, $args): Response
     {
-        // 判断是否存在
-        $is_index_file = dirname(__DIR__).'../../public/index.html';
+        // 判断是否存在/public/index.html文件，存在则输出，不存在则输出/public/home.html文件内容
+        $is_index_file = $this->projectDir.'/index.html';
         if (!file_exists($is_index_file)) {
-            $html = file_get_contents(dirname(__DIR__).'../../public/index.html');
-        }else{
-            $html = file_get_contents(dirname(__DIR__).'../../public/home.html');
+            $is_index_file = $this->projectDir.'/home.html'; // 默认
         }
+        $html = file_get_contents($is_index_file);
         $response->getBody()->write($html);
+
         return $response;
     }
 }

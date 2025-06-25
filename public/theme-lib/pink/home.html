@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <meta name="keywords" content="{{keywords}}">
+    <meta name="description" content="{{description}}">
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Marked.js用于解析Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 引入highlight.js用于代码高亮 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#EC4899',      // 粉色主色
+                        secondary: '#F472B6',    // 粉色次级
+                        accent: '#FB7185',       // 粉色强调
+                        dark: '#881337',         // 粉色深色
+                        light: '#FCE7F3',        // 粉色浅色
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.03);
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(22, 93, 255, 0.08);
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-gray-800">
+<!-- 导航栏容器 -->
+<header id="navbar-container" class="fixed w-full z-50 transition-all duration-300"></header>
+
+<!-- 加载指示器 -->
+<div id="loading-indicator" class="fixed inset-0 flex items-center justify-center bg-white z-50">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+</div>
+
+<!-- 主内容区 -->
+<main>
+    <!-- 首页 -->
+    <section id="home-page" class="pt-24 pb-16 hidden">
+        <!-- 轮播图横幅区域 -->
+        <div id="banner-container" class="mb-12 relative overflow-hidden"></div>
+
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 主内容区 -->
+                <div class="lg:col-span-2">
+                    <!-- 新闻列表容器 -->
+                    <div id="news-container" class="mb-12"></div>
+
+                    <!-- 分页组件 -->
+                    <div id="pagination-container" class="flex flex-wrap justify-between items-center mt-10 gap-4"></div>
+                </div>
+
+                <!-- 侧边栏 -->
+                <aside class="lg:col-span-1 space-y-8">
+                    <!-- 热门文章容器 -->
+                    <div id="popular-articles-container"></div>
+
+                    <!-- 热门标签容器 -->
+                    <div id="popular-tags-container"></div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- 详情页 (默认隐藏) -->
+    <section id="detail-page" class="pt-24 pb-16 hidden">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 文章内容 -->
+                <div class="lg:col-span-2">
+                    <div id="article-content" class="bg-white rounded-xl p-6 md:p-8 card-shadow"></div>
+                </div>
+
+                <!-- 侧边栏 -->
+                <aside class="lg:col-span-1 space-y-8">
+                    <!-- 热门文章容器 -->
+                    <div id="popular-articles-detail-container"></div>
+
+                    <!-- 热门标签容器 -->
+                    <div id="popular-tags-detail-container"></div>
+                </aside>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- 页脚容器 -->
+<footer id="footer-container"></footer>
+
+<!-- JavaScript -->
+<script>
+    /**
+     * 顶部统一API配置
+     * 所有请求接口/静态数据路径都在这里配置，后续 js 只引用变量，不写死字符串！
+     */
+    window.API_CONFIG = {
+        THEME_LIST: '/api/theme/articlelist',    // 主题/配置
+        ARTICLE_LIST: '/api/articlelist',        // 文章列表分页
+        ARTICLE_INFO: '/api/articleinfo/',       // 文章详情（后面拼接id）
+        CONFIG: '/api/config'                    // TDK配置
+    };
+    // Markdown解析配置
+    marked.setOptions({
+        highlight: function(code, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                return hljs.highlight(code, { language: lang }).value;
+            }
+            return hljs.highlightAuto(code).value;
+        },
+        breaks: true
+    });
+
+    // 全局配置对象
+    let config = {};
+
+    // 从JSON文件加载配置
+    async function loadConfig() {
+        try {
+            var url=API_CONFIG.THEME_LIST;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`加载配置文件失败: ${response.status}`);
+            }
+            config = await response.json();
+            return config;
+        } catch (error) {
+            console.error('加载配置时出错:', error);
+            // 显示错误信息
+            document.getElementById('loading-indicator').innerHTML = `
+          <div class="text-center p-6">
+            <i class="fa fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+            <p class="text-gray-700">加载配置文件失败，请检查网络连接或文件路径</p>
+            <button id="retry-button" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-dark transition-colors duration-200">
+              重试
+            </button>
+          </div>
+        `;
+            document.getElementById('retry-button').addEventListener('click', () => {
+                document.getElementById('loading-indicator').innerHTML = '<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>';
+                loadConfig().then(initPage);
+            });
+            throw error;
+        }
+    }
+
+    // ===================== 全局文章状态 =====================
+    let articleListData = {
+        list: [],
+        total: 0,
+        page: 1,
+        size: 1
+    };
+    let isArticleLoading = false;
+    // ===================== 加载文章列表（接口分页） =====================
+    async function loadArticleList(page = 1) {
+        isArticleLoading = true;
+        document.getElementById('news-container').innerHTML = `
+      <div class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+      </div>`;
+        try {
+            const resp = await fetch(`${API_CONFIG.ARTICLE_LIST}?page=${page}`);
+            const result = await resp.json();
+            if (result.code === 0 && result.data && Array.isArray(result.data.list)) {
+                articleListData = {
+                    ...result.data,
+                    page: result.data.page || page,
+                    size: result.data.size || 10,
+                    total: result.data.total || 0,
+                };
+            } else {
+                articleListData = { list: [], total: 0, page: 1, size: 10 };
+            }
+            renderNews();
+            renderPagination();
+        } catch (e) {
+            articleListData = { list: [], total: 0, page: 1, size: 10 };
+            document.getElementById('news-container').innerHTML = `
+          <div class="p-8 text-center text-red-500">
+            <i class="fa fa-exclamation-triangle"></i> 加载文章失败，请重试
+          </div>`;
+            document.getElementById('pagination-container').innerHTML = '';
+        }
+        isArticleLoading = false;
+    }
+
+    // 页面加载完成后开始加载配置并初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        loadConfig()
+            .then(() => {
+                initPage();
+            })
+            .catch(error => console.error('初始化失败:', error));
+    });
+</script>
+
+<script>
+    // ===================== 渲染新闻列表（接口分页） =====================
+    function renderNews() {
+        const newsContainer = document.getElementById('news-container');
+        if (articleListData.list.length === 0) {
+            newsContainer.innerHTML = `<div class="text-center py-12 text-gray-500">暂无文章</div>`;
+            return;
+        }
+        newsContainer.innerHTML = `
+        <div class="space-y-8">
+          ${articleListData.list.map(article => `
+            <article class="bg-white rounded-xl overflow-hidden card-shadow hover-scale transition-all duration-300">
+              <div class="md:flex">
+                ${article.cover ? `<div class="md:w-1/3"><img src="${article.cover}" alt="${article.title||''}" class="h-full w-full object-cover"></div>` : ''}
+                <div class="${article.cover ? 'md:w-2/3' : 'w-full'} p-6">
+                  <div class="flex flex-wrap items-center gap-2 mb-3">
+                    ${Array.isArray(article.tags) && article.tags.length
+            ? article.tags.map(tag => `<span class="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">${tag}</span>`).join('')
+            : ''}
+                    ${article.date ? `<span class="text-gray-400 text-xs ml-2"><i class="fa fa-calendar-o mr-1"></i> ${article.date}</span>` : ''}
+                  </div>
+                  <h3 class="text-xl font-bold mb-2 hover:text-primary transition-colors duration-200">
+                    <a href="#" data-article-id="${article.id}" class="article-link">${article.title||''}</a>
+                  </h3>
+                  ${article.desc ? `<p class="text-gray-600 mb-4 line-clamp-3">${article.desc}</p>` : ''}
+                  <div class="flex items-center justify-between mt-2">
+                    <div class="flex items-center gap-2 text-sm">
+                      <span>${article.author || ''}</span>
+                    </div>
+                    <a href="#" data-article-id="${article.id}" class="article-link text-primary hover:text-dark transition-colors duration-200">
+                        阅读更多 <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+    `;
+        // 文章详情点击事件
+        document.querySelectorAll('.article-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const articleId = e.currentTarget.dataset.articleId;
+                if (articleId) {
+                    // URL增加参数
+                    history.pushState({}, '', `?id=${encodeURIComponent(articleId)}`);
+                    showArticleDetailByApi(articleId);
+                }
+            });
+        });
+    }
+    // 解析URL参数
+    function getQueryParam(name) {
+        const match = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+    // ===================== 渲染分页（接口分页） =====================
+    function renderPagination() {
+        const paginationContainer = document.getElementById('pagination-container');
+        const totalPages = Math.ceil(articleListData.total / articleListData.size);
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+        let pageBtns = '';
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 || i === totalPages ||
+                (i >= articleListData.page - 2 && i <= articleListData.page + 2)
+            ) {
+                pageBtns += `<button class="page-btn px-3 py-1 rounded-lg ${i === articleListData.page ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'} mx-1" data-page="${i}">${i}</button>`;
+            } else if (
+                (i === articleListData.page - 3 && i > 1) ||
+                (i === articleListData.page + 3 && i < totalPages)
+            ) {
+                pageBtns += `<span class="mx-1 text-gray-400">...</span>`;
+            }
+        }
+        paginationContainer.innerHTML = `
+        <div class="flex flex-wrap gap-2 justify-center items-center">
+          ${pageBtns}
+        </div>
+    `;
+        // 页码点击事件
+        document.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const page = parseInt(e.currentTarget.dataset.page);
+                if (page && page !== articleListData.page) {
+                    loadArticleList(page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        });
+    }
+
+    function setMeta(name, content) {
+        let meta = document.querySelector('meta[name="'+name+'"]');
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.name = name;
+            document.head.appendChild(meta);
+        }
+        meta.content = content;
+    }
+    // 渲染轮播图横幅
+    function renderBanner() {
+        const bannerContainer = document.getElementById('banner-container');
+        if (!config.carousel) {
+            return;
+        }
+        const slides = config.carousel.slides;
+
+        bannerContainer.innerHTML = `
+        <div class="relative overflow-hidden">
+          <div id="carousel" class="flex transition-transform duration-500 ease-in-out">
+            ${slides.map((slide, index) => `
+              <div class="w-full flex-shrink-0 relative">
+                <img src="${slide.image}" alt="${slide.title}" class="w-full h-64 md:h-80 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-r from-dark/70 to-transparent flex flex-col justify-center px-6 md:px-12">
+                  <h2 class="text-2xl md:text-4xl font-bold text-white mb-2">${slide.title}</h2>
+                  <p class="text-white/90 text-lg mb-4 max-w-xl">${slide.subtitle}</p>
+                  <a href="${slide.button.href}" class=" ${slide.button.text === '' ? 'hidden' : ''} inline-flex items-center px-6 py-3 bg-white text-primary rounded-lg font-medium shadow-lg hover:shadow-xl hover-scale transition-all duration-300 w-fit">
+                    ${slide.button.text}
+                    <i class="fa fa-arrow-right ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 轮播控制按钮 -->
+          <button id="prev-slide" class="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 text-primary flex items-center justify-center shadow-md hover:bg-white transition-colors duration-200 z-10">
+            <i class="fa fa-angle-left text-xl"></i>
+          </button>
+          <button id="next-slide" class="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 text-primary flex items-center justify-center shadow-md hover:bg-white transition-colors duration-200 z-10">
+            <i class="fa fa-angle-right text-xl"></i>
+          </button>
+
+          <!-- 轮播指示器 -->
+          <div id="carousel-indicators" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+            ${slides.map((_, index) => `
+              <button class="w-3 h-3 rounded-full bg-white/50 ${index === 0 ? 'bg-white' : ''} transition-colors duration-200" data-index="${index}"></button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+        // 轮播图功能
+        let currentSlide = 0;
+        const slideCount = slides.length;
+        const carousel = document.getElementById('carousel');
+        const indicators = document.querySelectorAll('#carousel-indicators button');
+
+        function goToSlide(index) {
+            // 确保索引在有效范围内
+            if (index < 0) index = slideCount - 1;
+            if (index >= slideCount) index = 0;
+
+            // 更新当前幻灯片索引
+            currentSlide = index;
+
+            // 移动轮播图
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+            // 更新指示器状态
+            indicators.forEach((btn, i) => {
+                btn.classList.toggle('bg-white', i === currentSlide);
+                btn.classList.toggle('bg-white/50', i !== currentSlide);
+            });
+        }
+
+        // 下一张幻灯片
+        function nextSlide() {
+            goToSlide(currentSlide + 1);
+        }
+
+        // 上一张幻灯片
+        function prevSlide() {
+            goToSlide(currentSlide - 1);
+        }
+
+        // 添加按钮事件
+        document.getElementById('next-slide').addEventListener('click', nextSlide);
+        document.getElementById('prev-slide').addEventListener('click', prevSlide);
+
+        // 添加指示器点击事件
+        indicators.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                goToSlide(index);
+            });
+        });
+
+        // 添加自动轮播
+        let slideInterval = setInterval(nextSlide, 5000);
+
+        // 鼠标悬停时暂停自动轮播
+        bannerContainer.addEventListener('mouseenter', () => {
+            clearInterval(slideInterval);
+        });
+
+        // 鼠标离开时恢复自动轮播
+        bannerContainer.addEventListener('mouseleave', () => {
+            slideInterval = setInterval(nextSlide, 5000);
+        });
+    }
+
+    // 渲染热门文章
+    function renderPopularArticles(containerId) {
+        const container = document.getElementById(containerId);
+        if (!config.popularArticles) {
+            return;
+        }
+        const popular = config.popularArticles;
+
+        container.innerHTML = `
+        <div class="bg-white rounded-xl p-6 card-shadow">
+          <h3 class="text-xl font-bold mb-4 text-primary border-b pb-3">${popular.title}</h3>
+          <div class="space-y-4">
+            ${popular.articles.map(article => `
+              <div class="flex items-start space-x-3 pb-3 border-b border-gray-100">
+                <div class="bg-primary/10 text-primary text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
+                  ${article.id - 3}
+                </div>
+                <div>
+                  <h4 class="font-medium hover:text-primary transition-colors duration-200">
+                    <a href="#" data-article-id="${article.id}" class="popular-article-link">${article.title}</a>
+                  </h4>
+                  <div class="flex items-center text-gray-500 text-sm mt-1">
+                    <span class="mr-3"><i class="fa fa-user-o mr-1"></i> ${article.author}</span>
+                    <span><i class="fa fa-eye mr-1"></i> ${article.views}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+        // 添加热门文章点击事件
+        document.querySelectorAll('.popular-article-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const articleId = parseInt(e.currentTarget.dataset.id);
+                showArticleDetailByApi(articleId);
+            });
+        });
+    }
+
+    // 渲染热门标签
+    function renderPopularTags(containerId) {
+        const container = document.getElementById(containerId);
+        if (!config.popularTags) {
+            return;
+        }
+        const tags = config.popularTags;
+
+        container.innerHTML = `
+        <div class="bg-white rounded-xl p-6 card-shadow">
+          <h3 class="text-xl font-bold mb-4 text-primary border-b pb-3">${tags.title}</h3>
+          <div class="flex flex-wrap gap-2">
+            ${tags.tags.map(tag => `
+              <a href="#" class="px-3 py-1 bg-light text-primary rounded-full hover:bg-primary hover:text-white transition-colors duration-200">
+                ${tag.name} <span class="text-xs opacity-70">(${tag.count})</span>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 详情页内容渲染（重写版）
+    function showArticleDetailByApi(articleId) {
+        // 切换页面显示
+        document.getElementById('home-page').classList.add('hidden');
+        document.getElementById('detail-page').classList.remove('hidden');
+        // 新增这一句，自动滚动到顶部
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        const articleContent = document.getElementById('article-content');
+
+        articleContent.innerHTML = `<div class="flex justify-center items-center py-24">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+    </div>`;
+        fetch(API_CONFIG.ARTICLE_INFO + encodeURIComponent(articleId))
+            .then(res => res.json())
+            .then(res => {
+                if (res.code === 0 && res.data && res.data.meta) {
+                    const m = res.data.meta;
+                    if (m.title) document.title = m.title;
+                    if (m.desc) setMeta('description', m.desc);
+                    if (m.tags && m.tags.length) setMeta('keywords', m.tags.join(','));
+                    let tagsHtml = (Array.isArray(m.tags) && m.tags.length)
+                        ? `<div class="flex flex-wrap gap-2 mt-2 mb-2">${m.tags.map(tag => `<span class="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full tag cursor-pointer">${tag}</span>`).join('')}</div>`
+                        : '';
+                    let dateHtml = m.date ? `<span class="text-gray-400 text-xs"><i class="fa fa-calendar-o mr-1"></i> ${m.date}</span>` : '';
+                    let coverHtml = m.cover ? `<img src="${m.cover}" alt="${m.title||''}" class="rounded-lg w-full object-cover mb-4" style="max-height:320px;">` : '';
+                    let descHtml = m.desc ? `<div class="text-gray-500 mb-4">${m.desc}</div>` : '';
+                    let titleHtml = m.title ? `<h1 class="text-2xl md:text-3xl font-bold mb-2 text-primary">${m.title}</h1>` : '';
+                    // 解析Markdown内容
+                    const markdownContent = marked.parse(res.data.content);
+                    let contentHtml = res.data.content
+                        ? `<div class="prose max-w-none mt-6">${markdownContent}</div>`
+                        : '';
+
+                    articleContent.innerHTML = `
+                  <div>
+                    ${titleHtml}
+                    <div class="flex flex-wrap items-center gap-3 mb-2">${dateHtml} ${tagsHtml}</div>
+                    ${coverHtml}
+                    ${descHtml}
+                    ${contentHtml}
+                  </div>
+                  <div class="mt-8 pt-6 border-t">
+                    <button id="back-to-home" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-dark transition-colors duration-200">
+                      <i class="fa fa-arrow-left mr-2"></i> 返回首页
+                    </button>
+                  </div>
+                `;
+
+                    // 标签点击事件
+                    articleContent.querySelectorAll('.tag').forEach(tagEl => {
+                        tagEl.addEventListener('click', function(e) {
+                            // 跳转到标签页，也可换成你的setHash逻辑
+                            // setHash(e.target.innerText, 1);
+                            // location.href = 'home.html' + location.hash;
+                            // alert('点击标签: ' + e.target.innerText); // 替换为你的跳转逻辑
+                            e.stopPropagation();
+                        });
+                    });
+
+                    // 返回首页
+                    document.getElementById('back-to-home').onclick = () => {
+                        document.getElementById('detail-page').classList.add('hidden');
+                        document.getElementById('home-page').classList.remove('hidden');
+                        // 恢复无id的URL
+                        history.pushState({}, '', location.pathname);
+                        // 建议顺便滚到顶部
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
+
+                    // 高亮代码块
+                    articleContent.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                } else {
+                    articleContent.innerHTML = `<h1 class="text-xl font-bold text-primary mb-4">未找到文章</h1>
+                  <button id="back-to-home" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-dark transition-colors duration-200">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回首页
+                  </button>`;
+                    document.getElementById('back-to-home').onclick = () => {
+                        document.getElementById('detail-page').classList.add('hidden');
+                        document.getElementById('home-page').classList.remove('hidden');
+                    };
+                }
+            })
+            .catch(() => {
+                articleContent.innerHTML = `<div class="p-8 text-center text-red-500">加载失败</div>`;
+            });
+    }
+
+    // 渲染导航栏
+    function renderNavbar() {
+        const navbarContainer = document.getElementById('navbar-container');
+        // 兜底策略，如果没有配置navbar，则不渲染导航栏
+        if (!config.navbar) {
+            return;
+        }
+        const nav = config.navbar;
+
+
+        navbarContainer.innerHTML = `
+        <nav class="${nav.bgColor} ${nav.textColor} shadow-md">
+          <div class="container mx-auto px-4 md:px-6">
+            <div class="flex justify-between items-center h-16">
+              <!-- Logo -->
+              <a href="${nav.logo.href}" class="flex items-center space-x-2">
+                <i class="fa fa-paper-plane-o text-xl"></i>
+                <span class="font-bold text-xl">${nav.logo.text}</span>
+              </a>
+
+              <!-- 桌面端导航链接 -->
+              <div class="hidden md:flex items-center space-x-8">
+                ${nav.links.map(link => `
+                  <a href="${link.href}" class="flex items-center space-x-1 hover:text-light transition-colors duration-200">
+                    <i class="fa ${link.icon}"></i>
+                    <span>${link.text}</span>
+                  </a>
+                `).join('')}
+              </div>
+
+              <!-- 搜索框 -->
+              <div class="hidden md:block">
+                <form action="${nav.search.action}" class="flex items-center">
+                  <input type="text" placeholder="${nav.search.placeholder}" class="px-3 py-1 rounded-l-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-accent w-48 md:w-64">
+                  <button type="submit" class="bg-white text-primary px-3 py-1 rounded-r-lg hover:bg-light transition-colors duration-200">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </form>
+              </div>
+
+              <!-- 移动端菜单按钮 -->
+              <button id="mobile-menu-button" class="md:hidden text-white hover:text-light">
+                <i class="fa fa-bars text-xl"></i>
+              </button>
+            </div>
+
+            <!-- 移动端导航菜单 -->
+            <div id="mobile-menu" class="hidden md:hidden py-4 space-y-4">
+              ${nav.links.map(link => `
+                <a href="${link.href}" class="flex items-center space-x-2 px-2 py-1 hover:bg-primary/80 rounded transition-colors duration-200">
+                  <i class="fa ${link.icon}"></i>
+                  <span>${link.text}</span>
+                </a>
+              `).join('')}
+
+              <!-- 移动端搜索框 -->
+              <div class="px-2">
+                <form action="${nav.search.action}" class="flex items-center">
+                  <input type="text" placeholder="${nav.search.placeholder}" class="px-3 py-1 rounded-l-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-accent flex-grow">
+                  <button type="submit" class="bg-white text-primary px-3 py-1 rounded-r-lg hover:bg-light transition-colors duration-200">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </nav>
+      `;
+
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = navbarContainer.querySelector('nav');
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-primary/95', 'backdrop-blur-sm');
+                navbar.classList.remove('bg-primary');
+            } else {
+                navbar.classList.remove('bg-primary/95', 'backdrop-blur-sm');
+                navbar.classList.add('bg-primary');
+            }
+        });
+    }
+
+    // 渲染页脚
+    function renderFooter() {
+        const footerContainer = document.getElementById('footer-container');
+        if (!config.footer) {
+            return;
+        }
+        const footer = config.footer;
+
+        footerContainer.innerHTML = `
+        <footer class="${footer.bgColor} ${footer.textColor}">
+          <div class="container mx-auto px-4 md:px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div>
+                <div class="flex items-center space-x-2 mb-4">
+                  <i class="fa fa-paper-plane-o text-xl text-white"></i>
+                  <span class="font-bold text-xl text-white">${config.navbar.logo.text}</span>
+                </div>
+                <p class="mb-4">${footer.about}</p>
+                <div class="flex space-x-4">
+                  ${footer.socialLinks.map(link => `
+                    <a href="${link.href}" title="${link.title}" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors duration-200">
+                      <i class="${link.icon}"></i>
+                    </a>
+                  `).join('')}
+                </div>
+              </div>
+
+              ${footer.links.map(section => `
+                <div>
+                  <h4 class="text-lg font-semibold text-white mb-4">${section.title}</h4>
+                  <ul class="space-y-2">
+                    ${section.items.map(item => `
+                      <li>
+                        <a href="${item.href}" class="hover:text-white transition-colors duration-200">
+                          <i class="fa fa-angle-right mr-2"></i> ${item.text}
+                        </a>
+                      </li>
+                    `).join('')}
+                  </ul>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="border-t border-white/10 mt-10 pt-6 text-center">
+              <p>${footer.copyright}</p>
+            </div>
+          </div>
+        </footer>
+      `;
+    }
+
+    // 拉取并应用 TDK 函数
+    function seoTdk() {
+        fetch(API_CONFIG.CONFIG)
+            .then(res=>res.json())
+            .then(res=>{
+                if(res.code===0 && res.data){
+                    document.title = res.data.title || '';
+                    setMeta('description', res.data.desc || '');
+                    setMeta('keywords', res.data.keywords || '');
+                }
+            });
+    }
+    // 页面初始化
+    function initPage() {
+        renderNavbar();
+        renderBanner();
+        // 检查url参数
+        const id = getQueryParam('id');
+        if (id) {
+            showArticleDetailByApi(id); // 详情页
+            // 只显示详情页
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('detail-page').classList.remove('hidden');
+        } else {
+            seoTdk();    // 页面初始化时拉取并应用 TDK
+            loadArticleList();// 首页
+            // 只显示首页
+            document.getElementById('detail-page').classList.add('hidden');
+            document.getElementById('home-page').classList.remove('hidden');
+        }
+        renderPopularArticles('popular-articles-container'); // 首页
+        renderPopularArticles('popular-articles-detail-container');// 详情页
+        renderPopularTags('popular-tags-container');
+        renderPopularTags('popular-tags-detail-container');
+        renderFooter();
+
+        // 隐藏加载指示器，显示内容
+        document.getElementById('loading-indicator').classList.add('hidden');
+    }
+</script>
+</body>
+</html>
