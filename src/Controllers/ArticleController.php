@@ -300,7 +300,13 @@ HTML;
     // 函数home。输出/public/home.html文件内容
     public function home(Request $request, Response $response, $args): Response
     {
-        $html = file_get_contents(dirname(__DIR__).'../../public/home.html');
+        // 判断是否存在
+        $is_index_file = dirname(__DIR__).'../../public/index.html';
+        if (!file_exists($is_index_file)) {
+            $html = file_get_contents(dirname(__DIR__).'../../public/index.html');
+        }else{
+            $html = file_get_contents(dirname(__DIR__).'../../public/home.html');
+        }
         $response->getBody()->write($html);
         return $response;
     }

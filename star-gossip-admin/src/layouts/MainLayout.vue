@@ -138,6 +138,7 @@ const navMenus = [
   { label: '文章管理', type: 'route', to: '/' },
   { label: '历史热点', type: 'route', to: '/titlehub' },
   { label: '标题管理', type: 'route', to: '/titles' },
+  { label: '配置设置', type: 'route', to: '/siteconfig' },
   { label: 'AI帮助', type: 'action', action: () => alert('AI帮助弹窗！') },
   { label: '官网', type: 'link', href: 'https://yourdomain.com' }
 ]

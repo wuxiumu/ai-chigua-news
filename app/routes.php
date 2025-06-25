@@ -11,6 +11,7 @@ use App\Controllers\AuthController;
 use Tuupola\Middleware\CorsMiddleware;
 use App\Controllers\TitlePoolController;
 use App\Controllers\TitleHubController;
+use App\Controllers\ConfigController;
 
 return function (App $app) {
 
@@ -26,9 +27,17 @@ return function (App $app) {
     $app->post('/api/login', [AuthController::class, 'login']);
     $app->get('/api/articlelist',  [ArticleController::class, 'apiList']);
     $app->get('/api/articleinfo/{id}',  [ArticleController::class, 'apiShow']);
+    $app->get('/api/site-config', [ConfigController::class, 'getSiteConfig']);
+    $app->get('/api/site-theme', [ConfigController::class, 'getSiteTheme']);
+    $app->get('/api/theme/articlelist',  [ConfigController::class, 'getCurrentTheme']);//获取当前主题的文章列表
+    $app->get('/api/config', [ArticleController::class, 'apiConfig']); // tdk配置
     $app->group('/api', function ($group) {
         //  修改密码
         $group->post('/password', [AuthController::class, 'setPassword']);
+        $group->post('/site-config', [ConfigController::class, 'setSiteConfig']);
+        $group->post('/site-theme', [ConfigController::class, 'setSiteTheme']);
+
+
         //  注册
         // 文章管理
         $group->get('/articles', [ArticleController::class, 'apiList']);
@@ -36,7 +45,7 @@ return function (App $app) {
         $group->post('/article', [ArticleController::class, 'apiCreate']);
         $group->put('/article/{id}', [ArticleController::class, 'apiUpdate']);
         $group->delete('/article/{id}', [ArticleController::class, 'apiDelete']);
-        $group->get('/config', [ArticleController::class, 'apiConfig']);
+
 
         // 文件管理
         $group->get('/title-files', [TitlePoolController::class, 'files']);               // 获取所有文件

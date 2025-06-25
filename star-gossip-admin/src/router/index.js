@@ -9,7 +9,7 @@ import Login from '@/views/Login.vue'
 import TitlePool from '@/views/TitlePool.vue'
 import TitleHub from '@/views/TitleHub.vue'
 import TitleHubEdit from '@/views/TitleHubEdit.vue'
-
+import SiteConfig from '@/views/SiteConfig.vue'
 const routes = [
     {
         path: '/',
@@ -18,8 +18,9 @@ const routes = [
             { path: '', component: ArticleList },
             { path: 'article/:id', component: ArticleEdit },
             { path: 'titles', component: TitlePool }, // 新增
-            { path: 'titlehub', name: 'TitleHub',component: TitleHub }, // 新增
-            { path: 'titlehub/edit', name: 'TitleHubEdit', component: TitleHubEdit }
+            { path: 'titlehub', name: 'TitleHub',component: TitleHub },
+            { path: 'titlehub/edit', name: 'TitleHubEdit', component: TitleHubEdit },
+            { path: 'siteconfig', name: 'SiteConfig', component: SiteConfig },
             // 其它业务页面，建议都放在这里，统一布局和权限管理
         ]
     },
