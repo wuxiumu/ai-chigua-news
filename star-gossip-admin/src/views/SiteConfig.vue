@@ -10,8 +10,8 @@
       <el-tab-pane label="横幅" name="banner">
         <ConfigBanner v-model="config.banner" />
       </el-tab-pane>
-      <el-tab-pane label="热门文章" name="popularArticlesConfig">
-        <PopularArticlesConfig v-model="config.popularArticlesConfig" />
+      <el-tab-pane label="热门文章" name="popularArticles">
+        <PopularArticles v-model="config.popularArticles" />
       </el-tab-pane>
       <el-tab-pane label="热门标签" name="popularTags">
         <ConfigPopularTags v-model="config.popularTags" />
@@ -38,7 +38,7 @@ import ConfigNavbar from './SiteConfig/ConfigNavbar.vue'
 import ConfigCarousel from './SiteConfig/ConfigCarousel.vue'
 import ConfigBanner from './SiteConfig/ConfigBanner.vue'
 import ConfigPopularTags from './SiteConfig/ConfigPopularTags.vue'
-import PopularArticlesConfig from './SiteConfig/PopularArticlesConfig.vue'
+import PopularArticles from './SiteConfig/PopularArticles.vue'
 import ConfigFooter from './SiteConfig/ConfigFooter.vue'
 import ThemeManage from './SiteConfig/ThemeManage.vue'
 
@@ -82,7 +82,7 @@ const defaultConfig = {
       // { name: 'Vue', count: 15 }
     ]
   },
-  popularArticlesConfig: {
+  popularArticles: {
     title: '热门文章',
     articles: [
       // { name: '', count: 0 },
@@ -163,7 +163,7 @@ async function loadConfig() {
     deepMerge(config, res.data.data || {})
     // 最后补齐所有缺失字段
     autoFixConfig(config, defaultConfig)
-    ElMessage.success('配置已加载并自动修复')
+    // ElMessage.success('配置已加载并自动修复')
   } catch (e) {
     ElMessage.error('获取配置失败，将加载默认配置')
     deepMerge(config, JSON.parse(JSON.stringify(defaultConfig)))
