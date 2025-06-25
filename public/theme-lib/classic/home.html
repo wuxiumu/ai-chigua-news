@@ -452,7 +452,7 @@
                 </div>
                 <div>
                   <h4 class="font-medium hover:text-primary transition-colors duration-200">
-                    <a href="#" data-article-id="${article.id}" class="popular-article-link">${article.title}</a>
+                    <a href="${article.url}" data-article-id="${article.id}" class="popular-article-link">${article.title}</a>
                   </h4>
                   <div class="flex items-center text-gray-500 text-sm mt-1">
                     <span class="mr-3"><i class="fa fa-user-o mr-1"></i> ${article.author}</span>
@@ -464,15 +464,6 @@
           </div>
         </div>
       `;
-
-        // 添加热门文章点击事件
-        document.querySelectorAll('.popular-article-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const articleId = parseInt(e.currentTarget.dataset.id);
-                showArticleDetailByApi(articleId);
-            });
-        });
     }
 
     // 渲染热门标签
