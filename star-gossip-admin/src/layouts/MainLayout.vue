@@ -102,6 +102,13 @@
       </el-form-item>
     </el-form>
   </el-dialog>
+  <AiHelpDialog
+      v-model="showAiHelpModal"
+      :infos="aiInfos"
+      :payWx="engineer.payWx"
+      :payAli="engineer.payAli"
+      :payUrl="engineer.payUrl"
+  />
 </template>
 
 <script setup>
@@ -112,7 +119,28 @@ import { useRouter } from 'vue-router'
 import { User } from '@element-plus/icons-vue'
 import { useSiteStore } from '@/store/site'
 import getApi from '@/api/request' // 你的 axios 封装
+import AiHelpDialog from './AiHelpDialog.vue'
 
+const showAiHelpModal = ref(false)
+
+const aiInfos = [
+  { label: '工程师', value: 'Aric', copy: true },
+  { label: '电话', value: '18903676153', copy: true },
+  { label: '邮箱', value: 'wuxiumu@163.com', copy: true },
+  { label: '微信', value: 'qingbao199101', copy: true },
+  { label: '技能栈', value: 'Vue,Go,Java,PHP', copy: false },
+  { label: '一句话介绍', value: '十年码农，AI应用实践派', copy: false },
+  { label: '兴趣爱好', value: '骑行、摄影、看科技八卦', copy: false },
+  { label: '个人宣言', value: '代码是桥梁，AI是未来', copy: false },
+  { label: '星座', value: '摩羯座♑️', copy: false },
+  { label: '座右铭', value: 'Stay hungry, stay foolish.', copy: false }
+]
+
+const engineer = {
+  payWx: 'https://archive.biliimg.com/bfs/archive/6c98caa50579e4df2ce124c5c296fed953ef0a0a.jpg',
+  payAli: 'https://archive.biliimg.com/bfs/archive/0978ae41412bf85354a38a67f4ae9423ff19b1e4.jpg',
+  payUrl: 'https://pay.gua.hk/'
+}
 
 
 const siteStore = useSiteStore()
@@ -139,8 +167,8 @@ const navMenus = [
   { label: '历史热点', type: 'route', to: '/titlehub' },
   { label: '标题管理', type: 'route', to: '/titles' },
   { label: '配置设置', type: 'route', to: '/siteconfig' },
-  { label: 'AI帮助', type: 'action', action: () => alert('AI帮助弹窗！') },
-  { label: '官网', type: 'link', href: 'https://yourdomain.com' }
+  { label: '需要帮助', type: 'action', action: () => showAiHelpModal.value = true },
+  { label: '官网', type: 'link', href: 'https://wuxiumu.github.io/' }
 ]
 
 // 实时时间+星期
@@ -266,4 +294,5 @@ function submitUserEdit() {
 .site-title:hover {
   background: #f2f2f2;
 }
+
 </style>
